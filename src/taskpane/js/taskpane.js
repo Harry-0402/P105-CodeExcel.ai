@@ -311,6 +311,18 @@ const TaskPane = {
                 if (response.success) {
                     this.addMessage('ai', response.content);
                     
+                    // Auto-execute Excel tasks if detected
+                    if (typeof Office !== 'undefined' && typeof ExcelExecutor !== 'undefined') {
+                        try {
+                            const execResult = await ExcelExecutor.executeFromResponse(response.content, message);
+                            if (execResult.executed) {
+                                this.addMessage('system', `✅ ${execResult.message}`);
+                            }
+                        } catch (execError) {
+                            console.error('Auto-execution error:', execError);
+                        }
+                    }
+                    
                     // Save to history
                     if (typeof StorageModule !== 'undefined') {
                         const history = StorageModule.getHistory();

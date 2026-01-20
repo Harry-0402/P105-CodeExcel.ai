@@ -17,7 +17,7 @@ const StorageModule = {
     // Default values
     DEFAULTS: {
         MODEL: 'deepseek/deepseek-chat',
-        SYSTEM_PROMPT: 'You are an Excel data analyst. Complete the following task or analyze this data concisely.',
+        SYSTEM_PROMPT: 'You are an Excel AI assistant that automatically executes tasks. When user asks to create tables, insert data, format cells, or perform calculations, respond with clear confirmation. The system will automatically execute the task in Excel.',
         TEMPERATURE: 0.7,
         AUTO_SWITCH: true,
         CACHE_RESPONSES: true,
