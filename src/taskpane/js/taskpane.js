@@ -456,22 +456,22 @@ const TaskPane = {
             statusIndicator.className = 'status-badge status-success';
             setTimeout(() => {
                 statusIndicator.textContent = 'Ready';
+                statusIndicator.className = 'status-badge status-ready';
+            }, 2000);
+        }
+        console.log('Settings saved successfully');
+    },
+
+    /**
+     * Reset settings
+     */
+    resetSettings() {
         // Skip confirm (not supported in Office add-ins)
         if (typeof StorageModule !== 'undefined') {
             StorageModule.clearAll();
         }
         console.log('Settings reset, reloading...');
         location.reload();
-    /**
-     * Reset settings
-     */
-    resetSettings() {
-        if (confirm('Reset all settings to default?')) {
-            if (typeof StorageModule !== 'undefined') {
-                StorageModule.clearAll();
-            }
-            location.reload();
-        }
     },
 
     /**
