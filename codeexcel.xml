@@ -5,11 +5,11 @@
     xmlns:ov="http://schemas.microsoft.com/office/taskpaneappversionoverrides"
     xsi:type="TaskPaneApp">
     <Id>12345678-1234-1234-1234-123456789012</Id>
-    <Version>1.0.0.0</Version>
+    <Version>1.1.0.0</Version>
     <ProviderName>CodeExcel.AI</ProviderName>
     <DefaultLocale>en-US</DefaultLocale>
     <DisplayName DefaultValue="CodeExcel AI Assistant"/>
-    <Description DefaultValue="AI-powered Excel data analyst using OpenRouter"/>
+    <Description DefaultValue="AI-powered Excel assistant with automatic task execution - creates tables, formats data, and performs calculations automatically"/>
     <IconUrl DefaultValue="https://harry-0402.github.io/P105-CodeExcel.ai/src/assets/codeexcel-logo-32.png"/>
     <HighResolutionIconUrl DefaultValue="https://harry-0402.github.io/P105-CodeExcel.ai/src/assets/codeexcel-logo-64.png"/>
     <SupportUrl DefaultValue="https://github.com/Harry-0402/P105-CodeExcel.ai"/>
@@ -86,8 +86,8 @@
                 <bt:String id="TaskpaneButton.Label" DefaultValue="CodeExcel AI"/>
             </bt:ShortStrings>
             <bt:LongStrings>
-                <bt:String id="GetStarted.Description" DefaultValue="Your AI-powered Excel assistant is ready! Click the CodeExcel AI button to get started."/>
-                <bt:String id="TaskpaneButton.Tooltip" DefaultValue="Open CodeExcel AI Assistant - AI-powered data analysis and processing"/>
+                <bt:String id="GetStarted.Description" DefaultValue="Your AI-powered Excel assistant with auto-execution is ready! Ask it to create tables, format data, or perform calculations, and it will do it automatically."/>
+                <bt:String id="TaskpaneButton.Tooltip" DefaultValue="Open CodeExcel AI Assistant - Automatically executes Excel tasks: creates tables, formats cells, and more"/>
             </bt:LongStrings>
         </Resources>
     </VersionOverrides>
