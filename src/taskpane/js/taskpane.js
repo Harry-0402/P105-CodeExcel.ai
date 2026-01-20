@@ -439,7 +439,7 @@ const TaskPane = {
 
         const apiKey = document.getElementById('apiKey').value;
         const model = document.getElementById('modelSelect').value;
-        const temperature = document.getElementById('tempSlider').value;
+        const temperature = parseFloat(document.getElementById('tempSlider').value);
         const autoSwitch = document.getElementById('autoSwitchCheckbox').checked;
         const cacheResponses = document.getElementById('cacheResponsesCheckbox').checked;
 

@@ -222,10 +222,45 @@ const StorageModule = {
     getAllSettings() {
         try {
             const settings = localStorage.getItem(this.KEYS.SETTINGS);
-            return settings ? JSON.parse(settings) : {};
+            const parsed = settings ? JSON.parse(settings) : {};
+            return {
+                apiKey: this.getApiKey() || '',
+                model: parsed.model || this.getModel() || this.DEFAULTS.MODEL,
+                temperature: parsed.temperature ?? this.DEFAULTS.TEMPERATURE,
+                autoSwitch: parsed.autoSwitch ?? this.DEFAULTS.AUTO_SWITCH,
+                cacheResponses: parsed.cacheResponses ?? this.DEFAULTS.CACHE_RESPONSES,
+                darkMode: parsed.darkMode ?? this.DEFAULTS.DARK_MODE,
+                systemPrompt: parsed.systemPrompt || this.getSystemPrompt()
+            };
         } catch (error) {
             console.error('Error reading all settings:', error);
-            return {};
+            return {
+                apiKey: this.getApiKey() || '',
+                model: this.DEFAULTS.MODEL,
+                temperature: this.DEFAULTS.TEMPERATURE,
+                autoSwitch: this.DEFAULTS.AUTO_SWITCH,
+                cacheResponses: this.DEFAULTS.CACHE_RESPONSES,
+                darkMode: this.DEFAULTS.DARK_MODE,
+                systemPrompt: this.DEFAULTS.SYSTEM_PROMPT
+            };
+        }
+    },
+
+    /**
+     * Clear all stored settings and cached values
+     */
+    clearAll() {
+        try {
+            localStorage.removeItem(this.KEYS.API_KEY);
+            localStorage.removeItem(this.KEYS.MODEL);
+            localStorage.removeItem(this.KEYS.SYSTEM_PROMPT);
+            localStorage.removeItem(this.KEYS.HISTORY);
+            localStorage.removeItem(this.KEYS.CACHE);
+            localStorage.removeItem(this.KEYS.SETTINGS);
+            return true;
+        } catch (error) {
+            console.error('Error clearing all storage:', error);
+            return false;
         }
     },
 
