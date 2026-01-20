@@ -297,6 +297,41 @@ html, body {
     border: 1px solid var(--color-border);
 }
 
+.message-content strong {
+    font-weight: 600;
+    color: var(--color-text);
+}
+
+.message.user .message-content strong {
+    color: #ffffff;
+    font-weight: 700;
+}
+
+.message-content em {
+    font-style: italic;
+}
+
+.message-content code {
+    background-color: rgba(0, 0, 0, 0.05);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-family: 'Consolas', 'Monaco', monospace;
+    font-size: 13px;
+}
+
+.message.user .message-content code {
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+body.dark-mode .message-content code {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.message-content .list-item {
+    margin: 6px 0;
+    padding-left: 8px;
+}
+
 @keyframes slideIn {
     from {
         opacity: 0;

@@ -372,7 +372,7 @@ const TaskPane = {
         
         const messageContent = document.createElement('div');
         messageContent.className = 'message-content';
-        messageContent.textContent = content;
+        messageContent.innerHTML = this.formatMessage(content);
         
         messageDiv.appendChild(messageContent);
         messageArea.appendChild(messageDiv);
@@ -382,6 +382,37 @@ const TaskPane = {
 
         // Save to history
         this.messageHistory.push({ type, content, timestamp: Date.now() });
+    },
+
+    /**
+     * Format message content with markdown-like formatting
+     */
+    formatMessage(content) {
+        // Escape HTML to prevent XSS
+        let formatted = content
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;');
+
+        // Convert markdown-style formatting
+        // Bold: **text** or __text__
+        formatted = formatted.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+        formatted = formatted.replace(/__(.+?)__/g, '<strong>$1</strong>');
+        
+        // Italic: *text* or _text_
+        formatted = formatted.replace(/\*(.+?)\*/g, '<em>$1</em>');
+        formatted = formatted.replace(/_(.+?)_/g, '<em>$1</em>');
+        
+        // Code: `code`
+        formatted = formatted.replace(/`(.+?)`/g, '<code>$1</code>');
+        
+        // Line breaks
+        formatted = formatted.replace(/\n/g, '<br>');
+        
+        // Numbered lists: 1. item
+        formatted = formatted.replace(/(\d+)\.\s+(.+?)(<br>|$)/g, '<div class="list-item">$1. $2</div>');
+        
+        return formatted;
     },
 
     /**
