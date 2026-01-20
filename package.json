@@ -1,0 +1,32 @@
+{
+  "name": "codeexcel-ai",
+  "version": "1.0.0",
+  "description": "AI-powered Excel data analyst using OpenRouter and Gemini 2.0 Flash",
+  "main": "src/taskpane/html/taskpane.html",
+  "scripts": {
+    "start": "http-server src -p 3000 -c-1",
+    "dev": "http-server src -p 3000 -c-1 -o src/taskpane/html/taskpane.html",
+    "build": "echo 'Build step - ready for production deployment'",
+    "test": "echo 'Test step'"
+  },
+  "keywords": [
+    "excel",
+    "add-in",
+    "ai",
+    "openrouter",
+    "gemini",
+    "task-pane"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
+  "devDependencies": {
+    "http-server": "^14.1.1"
+  },
+  "dependencies": {
+    "@microsoft/office-js": "^1.1.97"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/codeexcel-ai"
+  }
+}

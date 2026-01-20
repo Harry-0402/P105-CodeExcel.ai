@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8" />
+    <title>CodeExcel AI Assistant</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="../css/taskpane.css" />
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>CodeExcel AI</h1>
+            <p class="subtitle">Powered by Gemini 2.0 Flash</p>
+        </div>
+
+        <!-- Status Indicator -->
+        <div id="status" class="status status-idle">
+            <span id="statusText">Ready</span>
+        </div>
+
+        <!-- Tab Navigation -->
+        <div class="tabs">
+            <button class="tab-button active" data-tab="assistant">Assistant</button>
+            <button class="tab-button" data-tab="settings">Settings</button>
+        </div>
+
+        <!-- Tab Content: Assistant -->
+        <div id="assistant" class="tab-content active">
+            <div class="section">
+                <h2>Process Excel Data</h2>
+                <p class="description">Select a cell and click below to analyze or process its content with AI.</p>
+                
+                <div class="selected-cell-info">
+                    <label>Selected Cell:</label>
+                    <span id="selectedCell">None</span>
+                </div>
+
+                <button id="processButton" class="btn btn-primary">Process Selection</button>
+
+                <div id="response" class="response-box">
+                    <p class="response-placeholder">AI response will appear here</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab Content: Settings -->
+        <div id="settings" class="tab-content">
+            <div class="section">
+                <h2>API Configuration</h2>
+                
+                <div class="form-group">
+                    <label for="apiKeyInput">OpenRouter API Key</label>
+                    <input 
+                        type="password" 
+                        id="apiKeyInput" 
+                        placeholder="Enter your OpenRouter API key"
+                        class="form-control"
+                    />
+                    <small class="help-text">Your API key is stored securely in your browser's local storage.</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="modelInput">AI Model</label>
+                    <input 
+                        type="text" 
+                        id="modelInput" 
+                        placeholder="google/gemini-2.0-flash-lite-preview-02-05:free"
+                        class="form-control"
+                    />
+                    <small class="help-text">Default: google/gemini-2.0-flash-lite-preview-02-05:free</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="systemPromptInput">System Prompt</label>
+                    <textarea 
+                        id="systemPromptInput" 
+                        class="form-control"
+                        rows="4"
+                        placeholder="You are an Excel data analyst. Complete the following task or analyze this data concisely."
+                    ></textarea>
+                    <small class="help-text">Instructions for the AI model</small>
+                </div>
+
+                <button id="saveButton" class="btn btn-secondary">Save Settings</button>
+                <button id="clearButton" class="btn btn-danger">Clear API Key</button>
+
+                <div id="settingsStatus" class="settings-status"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Office JavaScript API -->
+    <script src="https://appsforoffice.microsoft.com/lib/1/hosted/office.js"></script>
+    
+    <!-- Application Scripts -->
+    <script src="../js/storage.js"></script>
+    <script src="../js/ui.js"></script>
+    <script src="../js/api.js"></script>
+    <script src="../js/taskpane.js"></script>
+</body>
+</html>
