@@ -12,7 +12,7 @@
         <Host Name="Workbook"/>
     </Hosts>
     <DefaultSettings>
-        <SourceLocation DefaultValue="https://harry-0402.github.io/P105-CodeExcel.ai"/>
+        <SourceLocation DefaultValue="https://harry-0402.github.io/P105-CodeExcel.ai/src/taskpane/html/taskpane.html"/>
     </DefaultSettings>
     <Permissions>ReadWriteDocument</Permissions>
 </OfficeApp>
