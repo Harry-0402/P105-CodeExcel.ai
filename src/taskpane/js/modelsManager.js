@@ -23,32 +23,32 @@ const ModelsManager = {
             category: 'code',
             priority: 2
         },
-        'google/gemini-2.0-flash-lite': {
-            name: 'Gemini 2.0 Flash (Lite)',
+        'google/gemini-flash-1.5-8b': {
+            name: 'Gemini Flash 1.5 8B',
             provider: 'Google',
             quotaPerMin: 10,
             costPerRequest: 0,
             category: 'general',
             priority: 3
         },
-        'google/gemini-pro': {
-            name: 'Gemini Pro',
+        'google/gemini-pro-1.5': {
+            name: 'Gemini Pro 1.5',
             provider: 'Google',
             quotaPerMin: 5,
             costPerRequest: 0,
             category: 'advanced',
             priority: 4
         },
-        'meta-llama/llama-3-8b-instruct': {
-            name: 'Llama 3 8B',
+        'meta-llama/llama-3.1-8b-instruct:free': {
+            name: 'Llama 3.1 8B',
             provider: 'Meta',
             quotaPerMin: 15,
             costPerRequest: 0,
             category: 'general',
             priority: 5
         },
-        'meta-llama/llama-3-70b-instruct': {
-            name: 'Llama 3 70B',
+        'meta-llama/llama-3.1-70b-instruct:free': {
+            name: 'Llama 3.1 70B',
             provider: 'Meta',
             quotaPerMin: 8,
             costPerRequest: 0,
@@ -63,7 +63,7 @@ const ModelsManager = {
             category: 'general',
             priority: 7
         },
-        'mistral/mistral-7b-instruct': {
+        'mistralai/mistral-7b-instruct:free': {
             name: 'Mistral 7B',
             provider: 'Mistral',
             quotaPerMin: 10,
@@ -71,25 +71,25 @@ const ModelsManager = {
             category: 'general',
             priority: 8
         },
-        'mistral/mistral-medium': {
-            name: 'Mistral Medium',
-            provider: 'Mistral',
+        'nousresearch/hermes-3-llama-3.1-405b:free': {
+            name: 'Hermes 3 405B',
+            provider: 'Nous Research',
             quotaPerMin: 8,
             costPerRequest: 0,
             category: 'advanced',
             priority: 9
         },
-        'openchat/openchat-3.5-1210': {
-            name: 'OpenChat 3.5',
+        'openchat/openchat-7b:free': {
+            name: 'OpenChat 7B',
             provider: 'OpenChat',
             quotaPerMin: 25,
             costPerRequest: 0,
             category: 'general',
             priority: 10
         },
-        'nous-hermes-2-mixtral-8x7b-dpo': {
-            name: 'Nous Hermes 2',
-            provider: 'Nous',
+        'qwen/qwen-2-7b-instruct:free': {
+            name: 'Qwen 2 7B',
+            provider: 'Qwen',
             quotaPerMin: 12,
             costPerRequest: 0,
             category: 'general',
