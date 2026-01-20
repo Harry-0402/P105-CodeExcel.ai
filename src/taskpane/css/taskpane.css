@@ -420,6 +420,13 @@ body.dark-mode .message-input:focus {
     font-size: 12px;
 }
 
+.powered-by {
+    font-size: 10px;
+    color: var(--color-text-secondary);
+    font-weight: 400;
+    margin-left: 4px;
+}
+
 /* Status and Model Badges */
 .model-badge,
 .status-badge {
