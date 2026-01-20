@@ -63,38 +63,34 @@ html, body {
     background-color: var(--color-bg);
     overflow: hidden;
 }
-    display: flex;
-    flex-direction: column;
-}
 
 /* Header */
 .app-header {
     display: flex;
     justify-content: center;
     align-items: center;
-    gap: 12px;
-    padding: 20px 16px;
+    gap: 10px;
+    padding: 14px 12px;
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     border-bottom: none;
     box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15);
 }
 
 .app-logo {
-    width: 44px;
-    height: 44px;
+    width: 40px;
+    height: 40px;
     object-fit: contain;
     filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.25));
 }
 
 .app-title {
-    font-size: 22px;
+    font-size: 20px;
     font-weight: 700;
     color: rgba(255, 255, 255, 0.98);
     margin: 0;
     text-align: center;
-    letter-spacing: 0.5px;
+    letter-spacing: 0.3px;
     text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3), 0 4px 16px rgba(0, 0, 0, 0.2);
-}
 }
 
 .header-right {
@@ -120,9 +116,9 @@ html, body {
 /* Tab Navigation */
 .tab-navigation {
     display: flex;
-    gap: 8px;
+    gap: 6px;
     background: var(--color-bg);
-    padding: 8px 16px;
+    padding: 6px 12px;
     border-bottom: 1px solid var(--color-border);
 }
 
@@ -132,12 +128,12 @@ html, body {
     align-items: center;
     justify-content: center;
     gap: 6px;
-    padding: 10px 16px;
+    padding: 8px 10px;
     background: transparent;
     border: none;
     cursor: pointer;
-    font-size: 13px;
-    font-weight: 500;
+    font-size: 12px;
+    font-weight: 600;
     color: var(--color-text-secondary);
     border-radius: var(--border-radius-sm);
     transition: var(--transition);
@@ -189,21 +185,21 @@ html, body {
 .message-area {
     flex: 1;
     overflow-y: auto;
-    padding: 16px;
+    padding: 12px;
     background-color: var(--color-bg);
 }
 
 /* Welcome Section */
 .welcome-section {
     text-align: center;
-    padding: 48px 24px;
+    padding: 20px 16px;
     color: var(--color-text-secondary);
 }
 
 .welcome-section h2 {
-    font-size: 24px;
+    font-size: 20px;
     color: var(--color-text);
-    margin-bottom: 12px;
+    margin-bottom: 10px;
     font-weight: 700;
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     -webkit-background-clip: text;
@@ -212,26 +208,25 @@ html, body {
 }
 
 .welcome-section p {
-    font-size: 14px;
-    margin-bottom: 32px;
-    line-height: 1.7;
+    font-size: 13px;
+    margin-bottom: 16px;
+    line-height: 1.6;
     color: var(--color-text-secondary);
 }
 
 .welcome-section .tip-text {
-    font-size: 13px;
+    font-size: 12px;
     margin-bottom: 0;
     color: var(--color-text-secondary);
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 8px;
-    padding: 12px 20px;
+    padding: 10px 14px;
     background: var(--color-bg-secondary);
     border-radius: var(--border-radius);
-    max-width: 380px;
+    max-width: 320px;
     margin: 0 auto;
-}
 }
 
 .welcome-section .tip-text i {
@@ -313,13 +308,13 @@ html, body {
 .suggestions-area {
     padding: 8px;
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 6px;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 8px;
     background-color: var(--color-bg);
 }
 
 .suggestion-card {
-    padding: 8px;
+    padding: 10px;
     border: 1px solid var(--color-border);
     border-radius: var(--border-radius);
     background-color: var(--color-suggestion);
@@ -327,6 +322,7 @@ html, body {
     transition: var(--transition);
     text-align: center;
     box-shadow: var(--shadow-sm);
+    min-height: 82px;
 }
 
 .suggestion-card:hover {
@@ -886,12 +882,6 @@ body.dark-mode .form-select:focus {
     .message-content {
         max-width: 85%;
     }
-}
-    border-radius: 3px;
-}
-
-.response-box::-webkit-scrollbar-thumb:hover {
-    background: #999;
 }
 
 /* Responsive */
