@@ -51,6 +51,7 @@ const ExcelExecutor = {
     detectIntent(query) {
         const lowerQuery = query.toLowerCase();
 
+        // Action-based detection (explicit user requests)
         // Create table intent
         if (lowerQuery.includes('create') && (lowerQuery.includes('table') || lowerQuery.includes('data'))) {
             return {
@@ -60,7 +61,7 @@ const ExcelExecutor = {
         }
 
         // Insert data intent
-        if (lowerQuery.includes('insert') || lowerQuery.includes('add') || lowerQuery.includes('populate')) {
+        if (lowerQuery.includes('insert') || lowerQuery.includes('add ') || lowerQuery.includes('populate')) {
             return {
                 type: 'INSERT_DATA',
                 params: this.parseDataRequest(query)
@@ -68,7 +69,8 @@ const ExcelExecutor = {
         }
 
         // Format cells intent
-        if (lowerQuery.includes('format') || lowerQuery.includes('style') || lowerQuery.includes('bold')) {
+        if (lowerQuery.includes('format') || lowerQuery.includes('style') || lowerQuery.includes('bold') || 
+            lowerQuery.includes('color') || lowerQuery.includes('highlight')) {
             return {
                 type: 'FORMAT_CELLS',
                 params: this.parseFormatRequest(query)
@@ -76,7 +78,8 @@ const ExcelExecutor = {
         }
 
         // Calculate/Formula intent
-        if (lowerQuery.includes('calculate') || lowerQuery.includes('formula') || lowerQuery.includes('sum')) {
+        if (lowerQuery.includes('calculate') || lowerQuery.includes('formula') || lowerQuery.includes('sum') ||
+            lowerQuery.includes('total') || lowerQuery.includes('count') || lowerQuery.includes('average')) {
             return {
                 type: 'CALCULATE',
                 params: this.parseFormulaRequest(query)
@@ -228,67 +231,81 @@ const ExcelExecutor = {
     /**
      * Create an Excel table
      */
-    async createTable({ startCell, headers, rows }) {
-        return await Excel.run(async (context) => {
-            const sheet = context.workbook.worksheets.getActiveWorksheet();
-            
-            // Parse start cell
-            const cellMatch = startCell.match(/([A-Z]+)(\d+)/);
-            const startCol = cellMatch[1];
-            const startRow = parseInt(cellMatch[2]);
+    async createTable({ startCell = 'A1', headers = [], rows = 5 }) {
+        try {
+            return await Excel.run(async (context) => {
+                const sheet = context.workbook.worksheets.getActiveWorksheet();
+                
+                // Parse start cell
+                const cellMatch = startCell.match(/([A-Z]+)(\d+)/i);
+                if (!cellMatch) {
+                    throw new Error('Invalid start cell format');
+                }
+                
+                const startCol = cellMatch[1].toUpperCase();
+                const startRowNum = parseInt(cellMatch[2]);
 
-            // Create headers if provided
-            if (headers.length > 0) {
-                const headerRange = sheet.getRange(`${startCell}:${this.getColumnLetter(headers.length - 1, startCol)}${startRow}`);
-                headerRange.values = [headers];
+                // Use provided headers or create default ones
+                const finalHeaders = headers.length > 0 ? headers : ['Column 1', 'Column 2', 'Column 3'];
+                
+                // Create headers
+                const lastCol = this.getColumnLetter(finalHeaders.length - 1, startCol);
+                const headerRange = sheet.getRange(`${startCol}${startRowNum}:${lastCol}${startRowNum}`);
+                headerRange.values = [finalHeaders];
                 headerRange.format.font.bold = true;
                 headerRange.format.fill.color = '#4472C4';
                 headerRange.format.font.color = 'white';
-            }
 
-            // Generate sample data
-            const data = [];
-            for (let i = 1; i <= rows; i++) {
-                const row = [];
-                for (let j = 0; j < headers.length; j++) {
-                    const header = headers[j].toLowerCase();
-                    if (header.includes('date')) {
-                        row.push(this.generateSampleDate(i));
-                    } else if (header.includes('name') || header.includes('product')) {
-                        row.push(`${headers[j]} ${i}`);
-                    } else if (header.includes('amount') || header.includes('price') || header.includes('sales')) {
-                        row.push(Math.floor(Math.random() * 1000) + 100);
-                    } else if (header.includes('category')) {
-                        row.push(['Electronics', 'Furniture', 'Clothing', 'Food'][i % 4]);
-                    } else {
-                        row.push(`Item ${i}`);
+                // Generate sample data
+                const data = [];
+                const rowCount = rows && rows > 0 ? rows : 5;
+                
+                for (let i = 1; i <= rowCount; i++) {
+                    const row = [];
+                    for (let j = 0; j < finalHeaders.length; j++) {
+                        const header = finalHeaders[j].toLowerCase();
+                        if (header.includes('date')) {
+                            row.push(this.generateSampleDate(i));
+                        } else if (header.includes('name') || header.includes('product')) {
+                            row.push(`${finalHeaders[j]} ${i}`);
+                        } else if (header.includes('amount') || header.includes('price') || header.includes('sales')) {
+                            row.push(Math.floor(Math.random() * 1000) + 100);
+                        } else if (header.includes('category')) {
+                            row.push(['Electronics', 'Furniture', 'Clothing', 'Food'][i % 4]);
+                        } else {
+                            row.push(`Item ${i}`);
+                        }
                     }
+                    data.push(row);
                 }
-                data.push(row);
-            }
 
-            // Insert data
-            if (data.length > 0) {
-                const dataStartRow = startRow + 1;
-                const dataRange = sheet.getRange(`${startCol}${dataStartRow}:${this.getColumnLetter(headers.length - 1, startCol)}${dataStartRow + rows - 1}`);
-                dataRange.values = data;
-            }
+                // Insert data
+                if (data.length > 0) {
+                    const dataStartRow = startRowNum + 1;
+                    const dataEndRow = dataStartRow + rowCount - 1;
+                    const dataRange = sheet.getRange(`${startCol}${dataStartRow}:${lastCol}${dataEndRow}`);
+                    dataRange.values = data;
+                }
 
-            // Create table
-            const tableRange = sheet.getRange(`${startCell}:${this.getColumnLetter(headers.length - 1, startCol)}${startRow + rows}`);
-            const table = sheet.tables.add(tableRange, true);
-            table.name = `Table${Date.now()}`;
-            table.style = 'TableStyleMedium2';
+                // Create table
+                const tableRange = sheet.getRange(`${startCol}${startRowNum}:${lastCol}${startRowNum + rowCount}`);
+                const table = sheet.tables.add(tableRange, true);
+                table.name = `Table${Date.now()}`;
+                table.style = 'TableStyleMedium2';
 
-            await context.sync();
-            return { executed: true, message: `Created table with ${headers.length} columns and ${rows} rows` };
-        });
+                await context.sync();
+                return { executed: true, message: `✅ Created table with ${finalHeaders.length} columns and ${rowCount} rows` };
+            });
+        } catch (error) {
+            console.error('Create table error:', error);
+            return { executed: false, error: error.message };
+        }
     },
 
     /**
      * Insert data into Excel
      */
-    async insertData({ startCell, headers, rows }) {
+    async insertData({ startCell = 'A1', headers = [], rows = 5 }) {
         return await this.createTable({ startCell, headers, rows });
     },
 
@@ -296,59 +313,79 @@ const ExcelExecutor = {
      * Format cells
      */
     async formatCells({ range, bold, italic, color }) {
-        return await Excel.run(async (context) => {
-            const sheet = context.workbook.worksheets.getActiveWorksheet();
-            const targetRange = range ? sheet.getRange(range) : sheet.getUsedRange();
-            
-            if (bold) targetRange.format.font.bold = true;
-            if (italic) targetRange.format.font.italic = true;
-            if (color) targetRange.format.fill.color = color;
+        try {
+            return await Excel.run(async (context) => {
+                const sheet = context.workbook.worksheets.getActiveWorksheet();
+                const targetRange = range ? sheet.getRange(range) : sheet.getUsedRange();
+                
+                if (bold) targetRange.format.font.bold = true;
+                if (italic) targetRange.format.font.italic = true;
+                if (color) targetRange.format.fill.color = color;
 
-            await context.sync();
-            return { executed: true, message: 'Formatting applied' };
-        });
+                await context.sync();
+                return { executed: true, message: '✅ Formatting applied' };
+            });
+        } catch (error) {
+            console.error('Format cells error:', error);
+            return { executed: false, error: error.message };
+        }
     },
 
     /**
      * Add formula
      */
     async addFormula({ range, formula }) {
-        return await Excel.run(async (context) => {
-            const sheet = context.workbook.worksheets.getActiveWorksheet();
-            const targetRange = sheet.getRange(range);
-            targetRange.formulas = [[formula]];
+        try {
+            return await Excel.run(async (context) => {
+                const sheet = context.workbook.worksheets.getActiveWorksheet();
+                const targetRange = sheet.getRange(range);
+                targetRange.formulas = [[formula]];
 
-            await context.sync();
-            return { executed: true, message: 'Formula added' };
-        });
+                await context.sync();
+                return { executed: true, message: '✅ Formula added' };
+            });
+        } catch (error) {
+            console.error('Add formula error:', error);
+            return { executed: false, error: error.message };
+        }
     },
 
     /**
      * Sort data
      */
     async sortData({ range, ascending }) {
-        return await Excel.run(async (context) => {
-            const sheet = context.workbook.worksheets.getActiveWorksheet();
-            const targetRange = sheet.getRange(range);
-            targetRange.sort.apply([{ key: 0, ascending }]);
+        try {
+            return await Excel.run(async (context) => {
+                const sheet = context.workbook.worksheets.getActiveWorksheet();
+                const targetRange = sheet.getRange(range);
+                targetRange.sort.apply([{ key: 0, ascending: ascending !== false }]);
 
-            await context.sync();
-            return { executed: true, message: 'Data sorted' };
-        });
+                await context.sync();
+                return { executed: true, message: '✅ Data sorted' };
+            });
+        } catch (error) {
+            console.error('Sort data error:', error);
+            return { executed: false, error: error.message };
+        }
     },
 
     /**
      * Filter data
      */
     async filterData({ range, criteria }) {
-        return await Excel.run(async (context) => {
-            const sheet = context.workbook.worksheets.getActiveWorksheet();
-            const targetRange = sheet.getRange(range);
-            targetRange.autoFilter.apply(targetRange);
+        try {
+            return await Excel.run(async (context) => {
+                const sheet = context.workbook.worksheets.getActiveWorksheet();
+                const targetRange = sheet.getRange(range);
+                targetRange.autoFilter.apply(targetRange);
 
-            await context.sync();
-            return { executed: true, message: 'Filter applied' };
-        });
+                await context.sync();
+                return { executed: true, message: '✅ Filter applied' };
+            });
+        } catch (error) {
+            console.error('Filter data error:', error);
+            return { executed: false, error: error.message };
+        }
     },
 
     /**
