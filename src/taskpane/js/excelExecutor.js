@@ -11,8 +11,15 @@ const ExcelExecutor = {
      */
     async executeFromResponse(aiResponse, userQuery) {
         try {
-            // Detect intent from user query
-            const intent = this.detectIntent(userQuery);
+            // Detect intent from both user query and AI response
+            let intent = this.detectIntent(userQuery);
+            
+            // If no intent from user query, check if AI response contains action keywords
+            if (!intent) {
+                console.log('Checking AI response for action keywords...');
+                intent = this.detectActionInResponse(aiResponse, userQuery);
+            }
+            
             console.log('Detected intent:', intent);
 
             if (!intent) {
@@ -25,6 +32,8 @@ const ExcelExecutor = {
                 case 'CREATE_TABLE':
                     return await this.createTable(intent.params);
                 case 'INSERT_DATA':
+                    return await this.insertData(intent.params);
+                case 'REPLACE_DATA':
                     return await this.insertData(intent.params);
                 case 'FORMAT_CELLS':
                     return await this.formatCells(intent.params);
@@ -41,6 +50,56 @@ const ExcelExecutor = {
             console.error('Excel execution error:', error);
             return { executed: false, error: error.message };
         }
+    },
+
+    /**
+     * Detect if AI response contains action proposals
+     * @param {string} aiResponse - The AI response text
+     * @param {string} userQuery - Original user query for context
+     * @returns {object|null} Intent object with type and params
+     */
+    detectActionInResponse(aiResponse, userQuery) {
+        const lowerResponse = aiResponse.toLowerCase();
+        
+        // Look for cell ranges in the response (e.g., "A1:E6")
+        const rangeMatch = aiResponse.match(/([A-Z]+\d+):([A-Z]+\d+)/);
+        const cellRange = rangeMatch ? rangeMatch[0] : 'A1';
+        
+        // Replace/rewrite intent
+        if (lowerResponse.includes('will replace') || lowerResponse.includes('will rewrite') || 
+            lowerResponse.includes('replace the') || lowerResponse.includes('will add the data')) {
+            return {
+                type: 'REPLACE_DATA',
+                params: { startCell: cellRange.split(':')[0] || 'A1', headers: [], rows: 5 }
+            };
+        }
+        
+        // Create intent
+        if (lowerResponse.includes('will create') || lowerResponse.includes('create the table') ||
+            lowerResponse.includes('creating a table')) {
+            return {
+                type: 'CREATE_TABLE',
+                params: { startCell: cellRange.split(':')[0] || 'A1', headers: [], rows: 5 }
+            };
+        }
+        
+        // Insert intent
+        if (lowerResponse.includes('will insert') || lowerResponse.includes('inserting')) {
+            return {
+                type: 'INSERT_DATA',
+                params: { startCell: cellRange.split(':')[0] || 'A1', headers: [], rows: 5 }
+            };
+        }
+        
+        // Format intent
+        if (lowerResponse.includes('will format') || lowerResponse.includes('formatting')) {
+            return {
+                type: 'FORMAT_CELLS',
+                params: { range: cellRange, bold: true }
+            };
+        }
+        
+        return null;
     },
 
     /**
@@ -110,21 +169,40 @@ const ExcelExecutor = {
      */
     parseTableRequest(query) {
         // Extract cell reference (e.g., A1, B2)
-        const cellMatch = query.match(/(?:at\s+|cell\s+)?([A-Z]+\d+)/i);
+        const cellMatch = query.match(/(?:at\s+|cell\s+|range\s+)?([A-Z]+\d+)/i);
         const startCell = cellMatch ? cellMatch[1] : 'A1';
 
         // Extract headers
-        const headers = [];
-        const headerMatches = query.match(/headers?[:\s]+([^.]+)/i);
+        let headers = [];
+        
+        // Look for explicit headers in quotes or after "headers:" keyword
+        const headerMatches = query.match(/headers?[:\s]+([^.!?]+)/i);
         if (headerMatches) {
             const headerText = headerMatches[1];
             // Match quoted strings or comma-separated values
-            const matches = headerText.match(/'([^']+)'|"([^"]+)"|(\w+)/g);
+            const matches = headerText.match(/'([^']+)'|"([^"]+)"|([A-Za-z\s]+)/g);
             if (matches) {
                 matches.forEach(match => {
                     const cleaned = match.replace(/['",]/g, '').trim();
-                    if (cleaned) headers.push(cleaned);
+                    if (cleaned && cleaned.length > 0) {
+                        headers.push(cleaned);
+                    }
                 });
+            }
+        }
+        
+        // If no headers found, use default smart headers based on common table types
+        if (headers.length === 0) {
+            // Check if user mentioned specific types
+            if (query.toLowerCase().includes('product') || query.toLowerCase().includes('sales')) {
+                headers = ['Date', 'Product Name', 'Category', 'Item', 'Sales Amount'];
+            } else if (query.toLowerCase().includes('employee') || query.toLowerCase().includes('staff')) {
+                headers = ['ID', 'Name', 'Department', 'Position', 'Salary'];
+            } else if (query.toLowerCase().includes('student') || query.toLowerCase().includes('grade')) {
+                headers = ['ID', 'Name', 'Subject', 'Score', 'Grade'];
+            } else {
+                // Default headers
+                headers = ['Column 1', 'Column 2', 'Column 3', 'Column 4', 'Column 5'];
             }
         }
 
