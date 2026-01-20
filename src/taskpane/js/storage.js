@@ -21,7 +21,8 @@ const StorageModule = {
         TEMPERATURE: 0.7,
         AUTO_SWITCH: true,
         CACHE_RESPONSES: true,
-        DARK_MODE: false
+        DARK_MODE: false,
+        INLINE_ASSIST: true
     },
 
     /**
@@ -230,6 +231,7 @@ const StorageModule = {
                 autoSwitch: parsed.autoSwitch ?? this.DEFAULTS.AUTO_SWITCH,
                 cacheResponses: parsed.cacheResponses ?? this.DEFAULTS.CACHE_RESPONSES,
                 darkMode: parsed.darkMode ?? this.DEFAULTS.DARK_MODE,
+                inlineAssist: parsed.inlineAssist ?? this.DEFAULTS.INLINE_ASSIST,
                 systemPrompt: parsed.systemPrompt || this.getSystemPrompt()
             };
         } catch (error) {
@@ -241,6 +243,7 @@ const StorageModule = {
                 autoSwitch: this.DEFAULTS.AUTO_SWITCH,
                 cacheResponses: this.DEFAULTS.CACHE_RESPONSES,
                 darkMode: this.DEFAULTS.DARK_MODE,
+                inlineAssist: this.DEFAULTS.INLINE_ASSIST,
                 systemPrompt: this.DEFAULTS.SYSTEM_PROMPT
             };
         }

@@ -260,5 +260,46 @@ const APIModule = {
             }).join(' | ');
         });
         return output;
+    },
+
+    /**
+     * Get a single best formula suggestion based on a cell edit
+     */
+    async getFormulaSuggestion({ apiKey, model = 'auto', temperature = 0.4, address, userFormula, excelData }) {
+        if (!apiKey) throw new Error('Missing API Key');
+        if (!address) throw new Error('Missing cell address');
+
+        const systemPrompt = 'You are an Excel formula assistant. Given context and a partial or initial user formula, return exactly one complete Excel formula starting with =. No prose, no code fences, no explanation.';
+
+        let contextMessage = `Active cell: ${address}`;
+        if (userFormula) {
+            contextMessage += `\nUser typed: ${userFormula}`;
+        }
+
+        if (excelData) {
+            if (excelData.selectedRange && excelData.selectedRange.values) {
+                contextMessage += `\nSelected range ${excelData.selectedRange.address}:`;
+                contextMessage += `\n${this.formatDataAsTable(excelData.selectedRange.values)}`;
+            }
+
+            if (excelData.tables && excelData.tables.length > 0) {
+                contextMessage += '\nTables:';
+                excelData.tables.forEach((table) => {
+                    contextMessage += `\n${table.name} (${table.address}) headers: ${table.headers.join(', ')}`;
+                });
+            }
+        }
+
+        const result = await this.callOpenRouter(contextMessage, apiKey, model, systemPrompt, {
+            temperature,
+            maxTokens: 120,
+            topP: 0.9
+        });
+
+        // Extract first line starting with '='
+        const lines = result.response.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+        const best = lines.find(l => l.startsWith('=')) || lines[0] || '';
+
+        return { success: true, formula: best, raw: result.response, model: result.model };
     }
 };

@@ -429,6 +429,16 @@ const ExcelExecutor = {
     },
 
     /**
+     * Write a formula directly to a specific address, bypassing intent parsing
+     */
+    async applyFormulaDirect(address, formula) {
+        if (!address || !formula) {
+            return { executed: false, error: 'Missing address or formula' };
+        }
+        return this.addFormula({ range: address, formula });
+    },
+
+    /**
      * Sort data
      */
     async sortData({ range, ascending }) {

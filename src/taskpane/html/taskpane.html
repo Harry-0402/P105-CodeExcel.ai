@@ -76,6 +76,16 @@
                                     <span id="selectedCellValue"></span>
                                 </span>
                             </div>
+                            <div id="formulaAssist" class="formula-assist hidden">
+                                <div class="formula-assist-text">
+                                    <span class="assist-label"><i class="fas fa-wand-magic-sparkles"></i> Suggestion</span>
+                                    <span id="formulaAssistFormula"></span>
+                                </div>
+                                <div class="formula-assist-actions">
+                                    <button id="formulaAssistAccept" class="btn-small btn-primary" title="Insert formula">Insert</button>
+                                    <button id="formulaAssistDismiss" class="btn-small" title="Dismiss">Dismiss</button>
+                                </div>
+                            </div>
                             <input 
                                 id="messageInput" 
                                 type="text" 
@@ -203,6 +213,12 @@
                             <label class="checkbox-label">
                                 <input id="darkModeToggle" type="checkbox" />
                                 <span>Dark Mode</span>
+                            </label>
+                        </div>
+                        <div class="setting-item">
+                            <label class="checkbox-label">
+                                <input id="inlineAssistToggle" type="checkbox" />
+                                <span>Inline formula assist on '='</span>
                             </label>
                         </div>
                     </div>

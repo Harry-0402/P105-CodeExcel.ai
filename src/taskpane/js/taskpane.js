@@ -7,6 +7,10 @@ const TaskPane = {
     currentSelectedCell: null,
     messageHistory: [],
     isProcessing: false,
+    inlineAssistEnabled: true,
+    currentFormulaSuggestion: null,
+    lastInlineTrigger: null,
+    isApplyingFormula: false,
 
     /**
      * Initialize the application
@@ -90,6 +94,17 @@ const TaskPane = {
             resetSettings.addEventListener('click', () => this.resetSettings());
         }
 
+        // Inline assist actions
+        const assistAccept = document.getElementById('formulaAssistAccept');
+        if (assistAccept) {
+            assistAccept.addEventListener('click', () => this.applyFormulaSuggestion());
+        }
+
+        const assistDismiss = document.getElementById('formulaAssistDismiss');
+        if (assistDismiss) {
+            assistDismiss.addEventListener('click', () => this.hideFormulaAssist());
+        }
+
         // Temperature slider
         const tempSlider = document.getElementById('tempSlider');
         if (tempSlider) {
@@ -136,6 +151,19 @@ const TaskPane = {
                 const model = e.target.value;
                 if (model !== 'auto' && typeof ModelsManager !== 'undefined') {
                     ModelsManager.setModel(model);
+                }
+            });
+        }
+
+        const inlineAssistToggle = document.getElementById('inlineAssistToggle');
+        if (inlineAssistToggle) {
+            inlineAssistToggle.addEventListener('change', (e) => {
+                this.inlineAssistEnabled = e.target.checked;
+                if (typeof StorageModule !== 'undefined') {
+                    StorageModule.setSetting('inlineAssist', this.inlineAssistEnabled);
+                }
+                if (!this.inlineAssistEnabled) {
+                    this.hideFormulaAssist();
                 }
             });
         }
@@ -211,6 +239,12 @@ const TaskPane = {
         if (cacheResponsesCheckbox) {
             cacheResponsesCheckbox.checked = settings.cacheResponses !== false;
         }
+
+        const inlineAssistToggle = document.getElementById('inlineAssistToggle');
+        this.inlineAssistEnabled = settings.inlineAssist !== false;
+        if (inlineAssistToggle) {
+            inlineAssistToggle.checked = this.inlineAssistEnabled;
+        }
     },
 
     /**
@@ -229,6 +263,11 @@ const TaskPane = {
             Excel.run(async (context) => {
                 context.workbook.onSelectionChanged.add(() => {
                     this.updateSelectedCell();
+                });
+
+                const sheet = context.workbook.worksheets.getActiveWorksheet();
+                sheet.onChanged.add((eventArgs) => {
+                    this.handleWorksheetChange(eventArgs);
                 });
                 await context.sync();
                 this.updateSelectedCell();
@@ -259,6 +298,44 @@ const TaskPane = {
             });
         } catch (err) {
             console.log('Cell selection:', err.message);
+        }
+    },
+
+    /**
+     * Handle worksheet edits to detect formulas and trigger inline assist
+     */
+    async handleWorksheetChange(eventArgs) {
+        if (!this.inlineAssistEnabled || typeof Office === 'undefined') return;
+        if (this.isApplyingFormula) return;
+
+        try {
+            await Excel.run(async (context) => {
+                const sheet = eventArgs?.worksheetId
+                    ? context.workbook.worksheets.getItem(eventArgs.worksheetId)
+                    : context.workbook.worksheets.getActiveWorksheet();
+
+                const address = eventArgs?.address || this.currentSelectedCell || 'A1';
+                const range = sheet.getRange(address);
+                range.load(['address', 'formulas']);
+                await context.sync();
+
+                const formula = range.formulas?.[0]?.[0];
+                if (!formula || !formula.toString().trim().startsWith('=')) {
+                    return;
+                }
+
+                if (this.lastInlineTrigger && this.lastInlineTrigger.address === range.address) {
+                    const elapsed = Date.now() - this.lastInlineTrigger.time;
+                    if (elapsed < 1500) {
+                        return;
+                    }
+                }
+
+                this.lastInlineTrigger = { address: range.address, time: Date.now() };
+                await this.requestFormulaSuggestion({ address: range.address, userFormula: formula });
+            });
+        } catch (err) {
+            console.error('Worksheet change handler error:', err);
         }
     },
 
@@ -362,6 +439,43 @@ const TaskPane = {
         } catch (error) {
             console.error('Error extracting Excel data:', error);
             return null;
+        }
+    },
+
+    /**
+     * Request a formula suggestion after detecting a user-entered '=' formula
+     */
+    async requestFormulaSuggestion({ address, userFormula }) {
+        if (!this.inlineAssistEnabled) return;
+        if (!address || !userFormula) return;
+        if (typeof APIModule === 'undefined') return;
+
+        const apiKeyInput = document.getElementById('apiKey');
+        const apiKey = apiKeyInput ? apiKeyInput.value : '';
+        if (!apiKey) return;
+
+        const modelSelect = document.getElementById('modelSelect');
+        const model = modelSelect ? modelSelect.value : 'auto';
+        const tempSlider = document.getElementById('tempSlider');
+        const temperature = tempSlider ? parseFloat(tempSlider.value) : 0.7;
+
+        try {
+            const excelData = await this.extractExcelData();
+            const suggestion = await APIModule.getFormulaSuggestion({
+                apiKey,
+                model,
+                temperature: Math.min(temperature, 1.0),
+                address,
+                userFormula,
+                excelData
+            });
+
+            if (suggestion?.success && suggestion.formula) {
+                this.currentFormulaSuggestion = { address, formula: suggestion.formula };
+                this.showFormulaAssist(suggestion.formula);
+            }
+        } catch (error) {
+            console.error('Formula suggestion error:', error);
         }
     },
 
@@ -522,6 +636,41 @@ const TaskPane = {
         return formatted;
     },
 
+    showFormulaAssist(formulaText) {
+        const container = document.getElementById('formulaAssist');
+        const formulaSpan = document.getElementById('formulaAssistFormula');
+        if (!container || !formulaSpan) return;
+
+        formulaSpan.textContent = formulaText;
+        container.classList.remove('hidden');
+    },
+
+    hideFormulaAssist() {
+        const container = document.getElementById('formulaAssist');
+        const formulaSpan = document.getElementById('formulaAssistFormula');
+        if (container) container.classList.add('hidden');
+        if (formulaSpan) formulaSpan.textContent = '';
+        this.currentFormulaSuggestion = null;
+    },
+
+    async applyFormulaSuggestion() {
+        if (!this.currentFormulaSuggestion || typeof ExcelExecutor === 'undefined' || typeof Office === 'undefined') {
+            this.hideFormulaAssist();
+            return;
+        }
+
+        const { address, formula } = this.currentFormulaSuggestion;
+        this.isApplyingFormula = true;
+        try {
+            await ExcelExecutor.applyFormulaDirect(address, formula);
+            this.hideFormulaAssist();
+        } catch (error) {
+            console.error('Apply formula error:', error);
+        } finally {
+            this.isApplyingFormula = false;
+        }
+    },
+
     /**
      * Handle suggestion card click
      */
@@ -594,12 +743,15 @@ const TaskPane = {
         const temperature = parseFloat(document.getElementById('tempSlider').value);
         const autoSwitch = document.getElementById('autoSwitchCheckbox').checked;
         const cacheResponses = document.getElementById('cacheResponsesCheckbox').checked;
+        const inlineAssist = document.getElementById('inlineAssistToggle').checked;
 
         StorageModule.setApiKey(apiKey);
         StorageModule.setModel(model);
         StorageModule.setSetting('temperature', temperature);
         StorageModule.setSetting('autoSwitch', autoSwitch);
         StorageModule.setSetting('cacheResponses', cacheResponses);
+        StorageModule.setSetting('inlineAssist', inlineAssist);
+        this.inlineAssistEnabled = inlineAssist;
 
         // Show success in status indicator
         const statusIndicator = document.getElementById('statusIndicator');
