@@ -101,8 +101,16 @@ const APIModule = {
 
             // Check for HTTP errors
             if (!response.ok) {
-                const errorData = await response.json().catch(() => ({}));
-                const errorMessage = errorData.error?.message || `HTTP ${response.status}`;
+                let errorMessage = `HTTP ${response.status}`;
+                try {
+                    const errorData = await response.json();
+                    errorMessage = errorData.error?.message || errorData.message || errorMessage;
+                    console.error('API Error Response:', errorData);
+                } catch (parseError) {
+                    console.error('Could not parse error response:', parseError);
+                    const text = await response.text().catch(() => '');
+                    console.error('Raw error response:', text);
+                }
                 
                 if (typeof ModelsManager !== 'undefined') {
                     ModelsManager.recordError(selectedModel);
@@ -130,13 +138,14 @@ const APIModule = {
                 throw new Error('Invalid API response format');
             }
         } catch (error) {
+            console.error('API call error:', error);
             // Re-throw API errors as-is (they have useful messages)
             if (error.message && error.message.startsWith('API Error:')) {
                 throw error;
             }
-            // Handle network errors
+            // Handle fetch/network errors
             if (error instanceof TypeError || error.name === 'TypeError') {
-                throw new Error('Network error: Unable to reach the API. Check your internet connection.');
+                throw new Error('Network error: Unable to reach OpenRouter. Check your internet connection or firewall settings.');
             }
             // For other errors, include the original message
             throw new Error(`Request failed: ${error.message || error}`);
