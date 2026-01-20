@@ -436,13 +436,13 @@ body.dark-mode .message-input:focus {
 .input-footer {
     padding: 10px 0;
     display: flex;
-    justify-content: space-between;
+    justify-content: center;
     align-items: center;
 }
 
 .input-hint {
     display: flex;
-    gap: 6px;
+    gap: 8px;
     align-items: center;
     font-size: 12px;
     color: var(--color-text-secondary);
@@ -450,13 +450,6 @@ body.dark-mode .message-input:focus {
 
 .input-hint i {
     font-size: 13px;
-}
-
-.powered-by {
-    font-size: 11px;
-    color: var(--color-text-secondary);
-    font-weight: 500;
-    margin-left: 6px;
 }
 
 /* Status and Model Badges */
