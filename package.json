@@ -5,7 +5,7 @@
   "main": "src/taskpane/html/taskpane.html",
   "scripts": {
     "start": "http-server src -p 3000 -c-1",
-    "dev": "http-server src -p 3000 -c-1 -o src/taskpane/html/taskpane.html",
+    "dev": "http-server src -p 3000 -c-1 -o taskpane/html/taskpane.html",
     "build": "echo 'Build step - ready for production deployment'",
     "test": "echo 'Test step'"
   },
