@@ -78,6 +78,8 @@ html, body {
     font-weight: 500;
     color: var(--color-text);
     margin: 0;
+    text-align: center;
+}
 }
 
 .header-right {
