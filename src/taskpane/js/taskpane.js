@@ -756,8 +756,6 @@ async function handleClearApiKey() {
 }
 
 /**
- * Document ready handler
+ * Initialize when Office.js is ready
  */
-document.addEventListener('DOMContentLoaded', function() {
-    initializeApp();
-});
+TaskPane.init();
