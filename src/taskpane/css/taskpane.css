@@ -308,13 +308,14 @@ html, body {
 .suggestions-area {
     padding: 8px;
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    grid-template-columns: repeat(2, 1fr);
+    grid-template-rows: repeat(2, 1fr);
     gap: 8px;
     background-color: var(--color-bg);
 }
 
 .suggestion-card {
-    padding: 10px;
+    padding: 12px 8px;
     border: 1px solid var(--color-border);
     border-radius: var(--border-radius);
     background-color: var(--color-suggestion);
@@ -322,7 +323,6 @@ html, body {
     transition: var(--transition);
     text-align: center;
     box-shadow: var(--shadow-sm);
-    min-height: 82px;
 }
 
 .suggestion-card:hover {
