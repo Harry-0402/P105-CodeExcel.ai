@@ -18,14 +18,15 @@ const APIModule = {
     },
 
     /**
-     * Call OpenRouter API with user input
+     * Call OpenRouter API with user input and auto-switching support
      * @param {string} userMessage - The user message to send
      * @param {string} apiKey - The OpenRouter API key
-     * @param {string} model - The model to use
+     * @param {string} model - The model to use (or 'auto' for auto-switching)
      * @param {string} systemPrompt - The system prompt
-     * @returns {Promise<string>} The API response text
+     * @param {object} options - Additional options
+     * @returns {Promise<{response: string, model: string, time: number}>} The API response with metadata
      */
-    callOpenRouter: async function(userMessage, apiKey, model, systemPrompt) {
+    callOpenRouter: async function(userMessage, apiKey, model = 'auto', systemPrompt, options = {}) {
         // Validate inputs
         if (!apiKey || apiKey.trim() === '') {
             throw new Error('Missing API Key');
@@ -35,29 +36,40 @@ const APIModule = {
             throw new Error('No data to process');
         }
 
-        if (!model) {
+        const startTime = Date.now();
+        
+        // Handle auto-switching
+        let selectedModel = model;
+        if (model === 'auto' && typeof ModelsManager !== 'undefined') {
+            selectedModel = ModelsManager.getCurrentModel();
+        }
+
+        if (!selectedModel) {
             throw new Error('Model not specified');
         }
 
         const headers = this.getHeaders(apiKey);
 
+        // Get temperature from options or use default
+        const temperature = options.temperature || 0.7;
+
         const requestBody = {
-            model: model,
+            model: selectedModel,
             messages: [
                 {
                     role: 'system',
-                    content: systemPrompt
+                    content: systemPrompt || 'You are a helpful assistant for Excel data processing.'
                 },
                 {
                     role: 'user',
                     content: userMessage
                 }
             ],
-            temperature: 0.7,
-            max_tokens: 500,
-            top_p: 1.0,
-            frequency_penalty: 0,
-            presence_penalty: 0
+            temperature: temperature,
+            max_tokens: options.maxTokens || 500,
+            top_p: options.topP || 1.0,
+            frequency_penalty: options.frequencyPenalty || 0,
+            presence_penalty: options.presencePenalty || 0
         };
 
         try {
@@ -67,18 +79,52 @@ const APIModule = {
                 body: JSON.stringify(requestBody)
             });
 
+            const responseTime = Date.now() - startTime;
+
+            // Handle rate limiting (429) with auto-switch
+            if (response.status === 429) {
+                if (typeof ModelsManager !== 'undefined' && model === 'auto') {
+                    console.log('Rate limit exceeded, attempting to switch model...');
+                    ModelsManager.recordError(selectedModel);
+                    
+                    // Auto-switch to next available model
+                    const nextModel = ModelsManager.autoSwitch();
+                    
+                    if (nextModel !== selectedModel) {
+                        // Retry with new model
+                        return this.callOpenRouter(userMessage, apiKey, nextModel, systemPrompt, options);
+                    }
+                }
+                throw new Error('Rate limit exceeded (429). All models are quota-limited.');
+            }
+
             // Check for HTTP errors
             if (!response.ok) {
                 const errorData = await response.json().catch(() => ({}));
                 const errorMessage = errorData.error?.message || `HTTP ${response.status}`;
+                
+                if (typeof ModelsManager !== 'undefined') {
+                    ModelsManager.recordError(selectedModel);
+                }
+                
                 throw new Error(`API Error: ${errorMessage}`);
             }
 
             const data = await response.json();
 
+            // Record successful usage
+            if (typeof ModelsManager !== 'undefined') {
+                ModelsManager.recordUsage(selectedModel, responseTime);
+            }
+
             // Extract the response text
             if (data.choices && data.choices[0] && data.choices[0].message) {
-                return data.choices[0].message.content;
+                return {
+                    response: data.choices[0].message.content,
+                    model: selectedModel,
+                    time: responseTime,
+                    tokens: data.usage?.total_tokens || 0
+                };
             } else {
                 throw new Error('Invalid API response format');
             }

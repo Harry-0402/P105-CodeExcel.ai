@@ -2,52 +2,234 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8" />
-    <title>CodeExcel AI Assistant</title>
+    <title>CodeExcel AI - Gemini-Powered</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
     <link rel="stylesheet" href="../css/taskpane.css" />
 </head>
 <body>
-    <div class="container">
+    <div class="app-container">
         <!-- Header -->
-        <div class="header">
-            <h1>CodeExcel AI</h1>
-            <p class="subtitle">Powered by Gemini 2.0 Flash</p>
-        </div>
-
-        <!-- Status Indicator -->
-        <div id="status" class="status status-idle">
-            <span id="statusText">Ready</span>
-        </div>
-
-        <!-- Tab Navigation -->
-        <div class="tabs">
-            <button class="tab-button active" data-tab="assistant">Assistant</button>
-            <button class="tab-button" data-tab="settings">Settings</button>
-        </div>
-
-        <!-- Tab Content: Assistant -->
-        <div id="assistant" class="tab-content active">
-            <div class="section">
-                <h2>Process Excel Data</h2>
-                <p class="description">Select a cell and click below to analyze or process its content with AI.</p>
-                
-                <div class="selected-cell-info">
-                    <label>Selected Cell:</label>
-                    <span id="selectedCell">None</span>
-                </div>
-
-                <button id="processButton" class="btn btn-primary">Process Selection</button>
-
-                <div id="response" class="response-box">
-                    <p class="response-placeholder">AI response will appear here</p>
-                </div>
+        <div class="app-header">
+            <div class="header-left">
+                <h1 class="app-title">CodeExcel.AI</h1>
+                <span class="header-subtitle">Powered by AI</span>
+            </div>
+            <div class="header-right">
+                <button id="darkModeToggle" class="icon-btn" title="Toggle dark mode">
+                    <i class="fas fa-moon"></i>
+                </button>
             </div>
         </div>
 
-        <!-- Tab Content: Settings -->
-        <div id="settings" class="tab-content">
-            <div class="section">
-                <h2>API Configuration</h2>
+        <!-- Tab Navigation -->
+        <div class="tab-navigation">
+            <button class="tab-button active" data-tab="assistant">
+                <i class="fas fa-sparkles"></i>
+                <span>Assistant</span>
+            </button>
+            <button class="tab-button" data-tab="history">
+                <i class="fas fa-history"></i>
+                <span>History</span>
+            </button>
+            <button class="tab-button" data-tab="settings">
+                <i class="fas fa-cog"></i>
+                <span>Settings</span>
+            </button>
+        </div>
+
+        <!-- Main Content Area -->
+        <div class="content-wrapper">
+            <!-- Tab Content: Assistant (Conversational) -->
+            <div id="assistant" class="tab-pane active">
+                <div class="conversation-container">
+                    <div id="messageArea" class="message-area">
+                        <div class="welcome-section">
+                            <h2>Welcome to CodeExcel AI</h2>
+                            <p>Select a cell or range in Excel and ask me to help you analyze, transform, or process data.</p>
+                            <div class="quick-tips">
+                                <div class="tip-item">
+                                    <i class="fas fa-lightbulb"></i>
+                                    <p><strong>Tip:</strong> Use @ to reference cells or ranges</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Suggestion Cards -->
+                    <div id="suggestionsArea" class="suggestions-area">
+                        <div class="suggestion-card" data-action="summarize">
+                            <i class="fas fa-compress"></i>
+                            <h4>Summarize</h4>
+                            <p>Create a concise summary</p>
+                        </div>
+                        <div class="suggestion-card" data-action="extract">
+                            <i class="fas fa-database"></i>
+                            <h4>Extract</h4>
+                            <p>Extract key information</p>
+                        </div>
+                        <div class="suggestion-card" data-action="analyze">
+                            <i class="fas fa-chart-bar"></i>
+                            <h4>Analyze</h4>
+                            <p>Deep analysis of data</p>
+                        </div>
+                        <div class="suggestion-card" data-action="format">
+                            <i class="fas fa-palette"></i>
+                            <h4>Format</h4>
+                            <p>Transform the data</p>
+                        </div>
+                    </div>
+
+                    <!-- Input Area -->
+                    <div class="input-section">
+                        <div class="input-wrapper">
+                            <div class="selected-cell-display">
+                                <span id="selectedCellTag" class="cell-tag" style="display: none;">
+                                    <span id="selectedCellValue"></span>
+                                </span>
+                            </div>
+                            <input 
+                                id="messageInput" 
+                                type="text" 
+                                class="message-input" 
+                                placeholder="Type @ to reference cells, or ask me anything..." 
+                                autocomplete="off"
+                            />
+                            <button id="sendButton" class="send-button" title="Send message (Ctrl+Enter)">
+                                <i class="fas fa-paper-plane"></i>
+                            </button>
+                        </div>
+                        <div class="input-footer">
+                            <span class="input-hint">
+                                <i class="fas fa-keyboard"></i>
+                                <span id="currentModel" class="model-badge">Auto</span>
+                                <span id="statusIndicator" class="status-badge status-ready">Ready</span>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab Content: History -->
+            <div id="history" class="tab-pane">
+                <div class="history-container">
+                    <div class="history-header">
+                        <input 
+                            id="historySearch" 
+                            type="text" 
+                            class="history-search" 
+                            placeholder="Search history..."
+                        />
+                        <button id="clearHistoryBtn" class="btn-small" title="Clear all history">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                    <div id="historyList" class="history-list">
+                        <div class="history-empty">
+                            <i class="fas fa-inbox"></i>
+                            <p>No history yet</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab Content: Settings -->
+            <div id="settings" class="tab-pane">
+                <div class="settings-container">
+                    <div class="settings-section">
+                        <h3>API Configuration</h3>
+                        <div class="setting-item">
+                            <label for="apiKey">OpenRouter API Key:</label>
+                            <div class="input-group">
+                                <input 
+                                    id="apiKey" 
+                                    type="password" 
+                                    class="form-input" 
+                                    placeholder="sk-or-..."
+                                />
+                                <button id="toggleApiKeyVisibility" class="toggle-password-btn" title="Show/hide">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </div>
+                            <small>Get a free API key from <a href="https://openrouter.ai" target="_blank">openrouter.ai</a></small>
+                        </div>
+
+                        <div class="setting-item">
+                            <label for="modelSelect">Model:</label>
+                            <select id="modelSelect" class="form-select">
+                                <option value="auto">Auto-switch (Recommended)</option>
+                                <option value="deepseek/deepseek-chat">DeepSeek Chat</option>
+                                <option value="deepseek/deepseek-coder">DeepSeek Coder</option>
+                                <option value="google/gemini-2.0-flash-lite">Gemini 2.0 Flash (Lite)</option>
+                                <option value="google/gemini-pro">Gemini Pro</option>
+                                <option value="meta-llama/llama-3-8b-instruct">Llama 3 8B</option>
+                                <option value="meta-llama/llama-3-70b-instruct">Llama 3 70B</option>
+                                <option value="meta-llama/llama-2-70b-chat">Llama 2 70B</option>
+                                <option value="mistral/mistral-7b-instruct">Mistral 7B</option>
+                                <option value="mistral/mistral-medium">Mistral Medium</option>
+                                <option value="openchat/openchat-3.5-1210">OpenChat 3.5</option>
+                                <option value="nous-hermes-2-mixtral-8x7b-dpo">Nous Hermes 2</option>
+                            </select>
+                        </div>
+
+                        <div class="setting-item">
+                            <label for="tempSlider">Temperature (Creativity):</label>
+                            <input 
+                                id="tempSlider" 
+                                type="range" 
+                                min="0" 
+                                max="2" 
+                                step="0.1" 
+                                value="0.7"
+                                class="form-range"
+                            />
+                            <div class="slider-value">
+                                <span id="tempValue">0.7</span>
+                                <small>(0=Deterministic, 2=Creative)</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="settings-section">
+                        <h3>Model Statistics</h3>
+                        <div id="modelStats" class="stats-grid">
+                            <!-- Stats will be populated dynamically -->
+                        </div>
+                    </div>
+
+                    <div class="settings-section">
+                        <h3>Preferences</h3>
+                        <div class="setting-item">
+                            <label class="checkbox-label">
+                                <input id="autoSwitchCheckbox" type="checkbox" checked />
+                                <span>Enable auto-switching when quota exceeded</span>
+                            </label>
+                        </div>
+                        <div class="setting-item">
+                            <label class="checkbox-label">
+                                <input id="cacheResponsesCheckbox" type="checkbox" checked />
+                                <span>Cache responses for faster retrieval</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="settings-footer">
+                        <button id="saveSettings" class="btn btn-primary">Save Settings</button>
+                        <button id="resetSettings" class="btn btn-secondary">Reset to Default</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="../js/storage.js"></script>
+    <script src="../js/modelsManager.js"></script>
+    <script src="../js/api.js"></script>
+    <script src="../js/ui.js"></script>
+    <script src="../js/taskpane.js"></script>
+</body>
+</html>
                 
                 <div class="form-group">
                     <label for="apiKeyInput">OpenRouter API Key</label>
