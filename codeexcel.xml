@@ -35,7 +35,7 @@
                         <LearnMoreUrl resid="GetStarted.LearnMoreUrl"/>
                     </GetStarted>
                     
-                    <FunctionFile resid="Commands.Url"/>
+                    <!-- FunctionFile not needed for ShowTaskpane actions -->
                     
                     <ExtensionPoint xsi:type="PrimaryCommandSurface">
                         <OfficeTab id="TabHome">
@@ -77,7 +77,6 @@
                 <bt:Image id="Icon.80x80" DefaultValue="https://harry-0402.github.io/P105-CodeExcel.ai/src/assets/codeexcel-logo-128.png"/>
             </bt:Images>
             <bt:Urls>
-                <bt:Url id="Commands.Url" DefaultValue="https://harry-0402.github.io/P105-CodeExcel.ai/src/taskpane/html/taskpane.html"/>
                 <bt:Url id="Taskpane.Url" DefaultValue="https://harry-0402.github.io/P105-CodeExcel.ai/src/taskpane/html/taskpane.html"/>
                 <bt:Url id="GetStarted.LearnMoreUrl" DefaultValue="https://github.com/Harry-0402/P105-CodeExcel.ai"/>
             </bt:Urls>

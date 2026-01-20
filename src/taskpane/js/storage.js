@@ -146,59 +146,12 @@ const StorageModule = {
             localStorage.setItem(this.KEYS.SYSTEM_PROMPT, prompt.trim());
             return true;
         } catch (error) {
-            console.error('Error reading model from storage:', error);
-            return this.DEFAULTS.MODEL;
-        }
-    },
-
-    /**
-     * Set model name in localStorage
-     * @param {string} model - The model to store
-     * @returns {boolean} Success status
-     */
-    setModel(model) {
-        try {
-            if (!model || typeof model !== 'string') {
-                return false;
-            }
-            localStorage.setItem(this.KEYS.MODEL, model.trim());
-            return true;
-        } catch (error) {
-            console.error('Error saving model to storage:', error);
-            return false;
-        }
-    },
-
-    /**
-     * Get system prompt from localStorage
-     * @returns {string} The stored prompt or default prompt
-     */
-    getSystemPrompt() {
-        try {
-            return localStorage.getItem(this.KEYS.SYSTEM_PROMPT) || this.DEFAULTS.SYSTEM_PROMPT;
-        } catch (error) {
-            console.error('Error reading system prompt from storage:', error);
-            return this.DEFAULTS.SYSTEM_PROMPT;
-        }
-    },
-
-    /**
-     * Set system prompt in localStorage
-     * @param {string} prompt - The prompt to store
-     * @returns {boolean} Success status
-     */
-    setSystemPrompt(prompt) {
-        try {
-            if (!prompt || typeof prompt !== 'string') {
-                return false;
-            }
-            localStorage.setItem(this.KEYS.SYSTEM_PROMPT, prompt.trim());
-            return true;
-        } catch (error) {
             console.error('Error saving system prompt to storage:', error);
             return false;
         }
     },
+
+
 
     /**
      * Get message history
@@ -335,23 +288,6 @@ const StorageModule = {
             return true;
         } catch (error) {
             console.error('Error clearing settings:', error);
-            return false;
-        }
-    }
-};
-
-    /**
-     * Clear all stored settings
-     * @returns {boolean} Success status
-     */
-    clearAll: function() {
-        try {
-            localStorage.removeItem(this.KEYS.API_KEY);
-            localStorage.removeItem(this.KEYS.MODEL);
-            localStorage.removeItem(this.KEYS.SYSTEM_PROMPT);
-            return true;
-        } catch (error) {
-            console.error('Error clearing all storage:', error);
             return false;
         }
     }
