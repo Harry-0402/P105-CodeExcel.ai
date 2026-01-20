@@ -15,11 +15,6 @@
                 <h1 class="app-title">CodeExcel.AI</h1>
                 <span class="header-subtitle">Powered by AI</span>
             </div>
-            <div class="header-right">
-                <button id="darkModeToggle" class="icon-btn" title="Toggle dark mode">
-                    <i class="fas fa-moon"></i>
-                </button>
-            </div>
         </div>
 
         <!-- Tab Navigation -->
@@ -47,12 +42,7 @@
                         <div class="welcome-section">
                             <h2>Welcome to CodeExcel AI</h2>
                             <p>Select a cell or range in Excel and ask me to help you analyze, transform, or process data.</p>
-                            <div class="quick-tips">
-                                <div class="tip-item">
-                                    <i class="fas fa-lightbulb"></i>
-                                    <p><strong>Tip:</strong> Use @ to reference cells or ranges</p>
-                                </div>
-                            </div>
+                            <p class="tip-text"><i class="fas fa-lightbulb"></i> <strong>Tip:</strong> Use @ to reference cells or ranges</p>
                         </div>
                     </div>
 
@@ -209,6 +199,12 @@
                             <label class="checkbox-label">
                                 <input id="cacheResponsesCheckbox" type="checkbox" checked />
                                 <span>Cache responses for faster retrieval</span>
+                            </label>
+                        </div>
+                        <div class="setting-item">
+                            <label class="checkbox-label">
+                                <input id="darkModeToggle" type="checkbox" />
+                                <span><i class="fas fa-moon"></i> Dark Mode</span>
                             </label>
                         </div>
                     </div>

@@ -107,7 +107,7 @@ const TaskPane = {
         });
 
         // Dark mode toggle
-        document.getElementById('darkModeToggle').addEventListener('click', () => this.toggleDarkMode());
+        document.getElementById('darkModeToggle').addEventListener('change', () => this.toggleDarkMode());
 
         // Settings
         document.getElementById('saveSettings').addEventListener('click', () => this.saveSettings());
