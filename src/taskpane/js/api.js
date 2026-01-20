@@ -130,11 +130,16 @@ const APIModule = {
                 throw new Error('Invalid API response format');
             }
         } catch (error) {
-            // Handle network errors and other issues
-            if (error instanceof TypeError) {
-                throw new Error('Network error: Unable to reach the API');
+            // Re-throw API errors as-is (they have useful messages)
+            if (error.message && error.message.startsWith('API Error:')) {
+                throw error;
             }
-            throw error;
+            // Handle network errors
+            if (error instanceof TypeError || error.name === 'TypeError') {
+                throw new Error('Network error: Unable to reach the API. Check your internet connection.');
+            }
+            // For other errors, include the original message
+            throw new Error(`Request failed: ${error.message || error}`);
         }
     },
 

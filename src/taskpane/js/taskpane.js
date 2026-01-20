@@ -278,7 +278,7 @@ const TaskPane = {
         const apiKey = apiKeyInput ? apiKeyInput.value : '';
         
         if (!apiKey) {
-            alert('Please add your OpenRouter API key in Settings');
+            this.addMessage('ai', '⚠️ Please add your OpenRouter API key in Settings tab');
             this.switchTab('settings');
             return;
         }
@@ -433,7 +433,7 @@ const TaskPane = {
      */
     saveSettings() {
         if (typeof StorageModule === 'undefined') {
-            alert('Storage module not available');
+            console.error('Storage module not available');
             return;
         }
 
@@ -449,9 +449,19 @@ const TaskPane = {
         StorageModule.setSetting('autoSwitch', autoSwitch);
         StorageModule.setSetting('cacheResponses', cacheResponses);
 
-        alert('Settings saved successfully!');
-    },
-
+        // Show success in status indicator
+        const statusIndicator = document.getElementById('statusIndicator');
+        if (statusIndicator) {
+            statusIndicator.textContent = '✓ Saved';
+            statusIndicator.className = 'status-badge status-success';
+            setTimeout(() => {
+                statusIndicator.textContent = 'Ready';
+        // Skip confirm (not supported in Office add-ins)
+        if (typeof StorageModule !== 'undefined') {
+            StorageModule.clearAll();
+        }
+        console.log('Settings reset, reloading...');
+        location.reload();
     /**
      * Reset settings
      */
