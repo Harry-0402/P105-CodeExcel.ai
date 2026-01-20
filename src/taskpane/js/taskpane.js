@@ -254,7 +254,7 @@ const TaskPane = {
                 const value = document.getElementById('selectedCellValue');
                 if (tag && value) {
                     value.textContent = range.address;
-                    tag.style.display = 'inline-flex';
+                    tag.classList.remove('hidden');
                 }
             });
         } catch (err) {
@@ -343,13 +343,13 @@ const TaskPane = {
         // Hide welcome section
         const welcomeSection = messageArea.querySelector('.welcome-section');
         if (welcomeSection) {
-            welcomeSection.style.display = 'none';
+            welcomeSection.classList.add('hidden');
         }
 
         // Hide suggestions
         const suggestionsArea = document.getElementById('suggestionsArea');
         if (suggestionsArea) {
-            suggestionsArea.style.display = 'none';
+            suggestionsArea.classList.add('hidden');
         }
 
         // Create message element

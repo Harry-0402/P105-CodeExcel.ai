@@ -45,6 +45,10 @@ body.dark-mode {
     box-sizing: border-box;
 }
 
+.hidden {
+    display: none !important;
+}
+
 html, body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
     background-color: var(--color-bg);
@@ -700,6 +704,7 @@ body.dark-mode .form-select:focus {
     background: var(--color-border);
     outline: none;
     -webkit-appearance: none;
+    appearance: none;
 }
 
 .form-range::-webkit-slider-thumb {
