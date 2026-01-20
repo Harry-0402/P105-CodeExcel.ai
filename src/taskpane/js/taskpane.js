@@ -17,18 +17,42 @@ const TaskPane = {
     async init() {
         console.log('Initializing TaskPane...');
         
-        // Wait for Office.js to be ready
-        await Office.onReady(async (info) => {
-            if (info.host !== Office.HostType.Excel) {
-                this.showError('This add-in only works with Excel');
-                return;
-            }
+        // Check if Office.js is available
+        if (typeof Office !== 'undefined') {
+            // Wait for Office.js to be ready
+            await Office.onReady(async (info) => {
+                if (info.host !== Office.HostType.Excel) {
+                    this.showError('This add-in only works with Excel');
+                    return;
+                }
 
-            console.log('Excel Office.js is ready');
+                console.log('Excel Office.js is ready');
 
-            // Initialize sub-modules
-            StorageModule.init();
-            ModelsManager.init();
+                // Initialize sub-modules
+                StorageModule.init();
+                ModelsManager.init();
+                
+                // Load settings
+                this.loadSettings();
+
+                // Setup event listeners
+                this.setupEventListeners();
+
+                // Setup Excel event tracking
+                this.setupExcelTracking();
+
+                // Initialize with welcome state
+                this.showWelcome();
+
+                console.log('TaskPane initialization complete');
+            });
+        } else {
+            // Running in browser without Office.js (for testing)
+            console.log('Running in browser mode (Office.js not available)');
+            
+            // Initialize sub-modules if available
+            if (typeof StorageModule !== 'undefined') StorageModule.init();
+            if (typeof ModelsManager !== 'undefined') ModelsManager.init();
             
             // Load settings
             this.loadSettings();
@@ -36,14 +60,11 @@ const TaskPane = {
             // Setup event listeners
             this.setupEventListeners();
 
-            // Setup Excel event tracking
-            this.setupExcelTracking();
-
             // Initialize with welcome state
             this.showWelcome();
 
-            console.log('TaskPane initialization complete');
-        });
+            console.log('Browser mode initialization complete');
+        }
     },
 
     /**
