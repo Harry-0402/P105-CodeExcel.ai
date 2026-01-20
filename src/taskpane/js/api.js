@@ -194,10 +194,71 @@ const APIModule = {
     /**
      * High-level sendMessage used by taskpane
      */
-    async sendMessage({ message, apiKey, model, temperature = 0.7, cellData, systemPrompt }) {
+    async sendMessage({ message, apiKey, model, temperature = 0.7, cellData, excelData, systemPrompt }) {
         const prompt = systemPrompt || StorageModule?.getSystemPrompt?.() || 'You are a helpful assistant for Excel data processing.';
-        const combinedMessage = cellData ? `${message}\n\nSelected cells: ${cellData}` : message;
-        const result = await this.callOpenRouter(combinedMessage, apiKey, model, prompt, { temperature });
+        
+        // Build context with Excel data
+        let contextMessage = message;
+        
+        if (excelData) {
+            contextMessage += '\n\n--- Excel Context ---';
+            
+            // Add sheet info
+            if (excelData.sheetName) {
+                contextMessage += `\nSheet: ${excelData.sheetName}`;
+            }
+            
+            // Add selected range info
+            if (excelData.selectedRange && excelData.selectedRange.values) {
+                contextMessage += `\n\nSelected Range (${excelData.selectedRange.address}):`;
+                contextMessage += `\n${this.formatDataAsTable(excelData.selectedRange.values)}`;
+            }
+            
+            // Add table info if available
+            if (excelData.tables && excelData.tables.length > 0) {
+                contextMessage += '\n\nAvailable Tables:';
+                excelData.tables.forEach(table => {
+                    contextMessage += `\n\nTable: ${table.name} (${table.rowCount} rows)`;
+                    contextMessage += `\nHeaders: ${table.headers.join(', ')}`;
+                    // Include first few rows of data
+                    if (table.values.length > 1) {
+                        contextMessage += '\nSample Data:';
+                        const sampleRows = table.values.slice(0, Math.min(6, table.values.length));
+                        contextMessage += `\n${this.formatDataAsTable(sampleRows)}`;
+                    }
+                });
+            }
+            
+            // Add used range info if no tables
+            if ((!excelData.tables || excelData.tables.length === 0) && excelData.usedRange && excelData.usedRange.values) {
+                contextMessage += `\n\nSheet Data (${excelData.usedRange.address}):`;
+                contextMessage += `\n${this.formatDataAsTable(excelData.usedRange.values)}`;
+                if (excelData.usedRange.truncated) {
+                    contextMessage += `\n${excelData.usedRange.note}`;
+                }
+            }
+        } else if (cellData) {
+            contextMessage += `\n\nSelected cells: ${cellData}`;
+        }
+        
+        const result = await this.callOpenRouter(contextMessage, apiKey, model, prompt, { temperature });
         return { success: true, content: result.response, model: result.model, time: result.time };
+    },
+
+    /**
+     * Format 2D array as readable table
+     */
+    formatDataAsTable(values) {
+        if (!values || values.length === 0) return '';
+        
+        let output = '';
+        values.forEach((row, i) => {
+            output += '\n' + row.map(cell => {
+                if (cell === null || cell === undefined) return '';
+                if (typeof cell === 'number') return cell.toString();
+                return String(cell);
+            }).join(' | ');
+        });
+        return output;
     }
 };

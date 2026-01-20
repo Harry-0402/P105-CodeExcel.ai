@@ -263,6 +263,109 @@ const TaskPane = {
     },
 
     /**
+     * Extract comprehensive data from Excel
+     */
+    async extractExcelData() {
+        if (typeof Office === 'undefined') {
+            return null;
+        }
+
+        try {
+            return await Excel.run(async (context) => {
+                const data = {
+                    selectedRange: null,
+                    selectedValues: null,
+                    tables: [],
+                    usedRange: null,
+                    sheetName: null
+                };
+
+                // Get active worksheet
+                const sheet = context.workbook.worksheets.getActiveWorksheet();
+                sheet.load('name');
+
+                // Get selected range
+                const selectedRange = context.workbook.getSelectedRange();
+                selectedRange.load(['address', 'values', 'formulas', 'rowCount', 'columnCount']);
+
+                // Get used range (all data in sheet)
+                const usedRange = sheet.getUsedRange();
+                usedRange.load(['address', 'values', 'rowCount', 'columnCount']);
+
+                // Get all tables in the worksheet
+                const tables = sheet.tables;
+                tables.load(['name', 'items']);
+
+                await context.sync();
+
+                // Extract sheet name
+                data.sheetName = sheet.name;
+
+                // Extract selected range data
+                data.selectedRange = {
+                    address: selectedRange.address,
+                    rowCount: selectedRange.rowCount,
+                    columnCount: selectedRange.columnCount,
+                    values: selectedRange.values,
+                    formulas: selectedRange.formulas
+                };
+
+                // Extract used range (limit to reasonable size)
+                if (usedRange.rowCount <= 100 && usedRange.columnCount <= 20) {
+                    data.usedRange = {
+                        address: usedRange.address,
+                        rowCount: usedRange.rowCount,
+                        columnCount: usedRange.columnCount,
+                        values: usedRange.values
+                    };
+                } else {
+                    // For large datasets, only include headers and first few rows
+                    const limitedRange = sheet.getRangeByIndexes(0, 0, Math.min(usedRange.rowCount, 10), usedRange.columnCount);
+                    limitedRange.load(['address', 'values']);
+                    await context.sync();
+                    
+                    data.usedRange = {
+                        address: usedRange.address,
+                        rowCount: usedRange.rowCount,
+                        columnCount: usedRange.columnCount,
+                        values: limitedRange.values,
+                        truncated: true,
+                        note: `Dataset has ${usedRange.rowCount} rows. Showing first 10 rows.`
+                    };
+                }
+
+                // Extract table data
+                for (let i = 0; i < tables.items.length; i++) {
+                    const table = tables.items[i];
+                    table.load(['name']);
+                    
+                    const tableRange = table.getRange();
+                    tableRange.load(['address', 'values']);
+                    
+                    const headerRange = table.getHeaderRowRange();
+                    headerRange.load('values');
+                    
+                    await context.sync();
+                    
+                    data.tables.push({
+                        name: table.name,
+                        address: tableRange.address,
+                        headers: headerRange.values[0],
+                        values: tableRange.values,
+                        rowCount: tableRange.values.length - 1 // Exclude header
+                    });
+                }
+
+                console.log('📊 Extracted Excel data:', data);
+                return data;
+            });
+        } catch (error) {
+            console.error('Error extracting Excel data:', error);
+            return null;
+        }
+    },
+
+    /**
      * Send a message to the AI
      */
     async sendMessage() {
@@ -298,6 +401,9 @@ const TaskPane = {
             const tempSlider = document.getElementById('tempSlider');
             const temperature = tempSlider ? parseFloat(tempSlider.value) : 0.7;
 
+            // Extract Excel data if available
+            const excelData = await this.extractExcelData();
+
             // Call API
             if (typeof APIModule !== 'undefined') {
                 const response = await APIModule.sendMessage({
@@ -305,7 +411,8 @@ const TaskPane = {
                     apiKey,
                     model: model === 'auto' ? 'google/gemini-2.0-flash-lite' : model,
                     temperature,
-                    cellData: this.currentSelectedCell
+                    cellData: this.currentSelectedCell,
+                    excelData: excelData
                 });
 
                 if (response.success) {
