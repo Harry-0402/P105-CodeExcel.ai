@@ -109,7 +109,7 @@ const ModelsManager = {
      */
     init() {
         // Load saved usage stats from storage
-        const saved = Storage.get('modelsUsageStats');
+        const saved = StorageModule.getSetting('modelsUsageStats');
         if (saved) {
             this.usageStats = saved;
         } else {
@@ -117,7 +117,7 @@ const ModelsManager = {
         }
 
         // Load saved model preferences
-        const savedModel = Storage.get('selectedModel');
+        const savedModel = StorageModule.getSetting('selectedModel');
         if (savedModel && this.models[savedModel]) {
             this.currentModel = savedModel;
         }
@@ -233,7 +233,7 @@ const ModelsManager = {
         this.updateUI();
 
         // Save preference
-        Storage.set('selectedModel', this.currentModel);
+        StorageModule.setSetting('selectedModel', this.currentModel);
 
         return this.currentModel;
     },
@@ -339,7 +339,7 @@ const ModelsManager = {
      * Save usage stats to storage
      */
     saveUsageStats() {
-        Storage.set('modelsUsageStats', this.usageStats);
+        StorageModule.setSetting('modelsUsageStats', this.usageStats);
     },
 
     /**
@@ -392,7 +392,7 @@ const ModelsManager = {
             return false;
         }
         this.currentModel = modelId;
-        Storage.set('selectedModel', modelId);
+        StorageModule.setSetting('selectedModel', modelId);
         this.updateUI();
         return true;
     },
