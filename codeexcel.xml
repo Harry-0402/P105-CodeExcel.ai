@@ -12,7 +12,9 @@
         <Host Name="Workbook"/>
     </Hosts>
     <DefaultSettings>
-        <SourceLocation DefaultValue="https://harry-0402.github.io/P105-CodeExcel.ai/html/taskpane.html"/>
+        <SourceLocation DefaultValue="https://harry-0402.github.io/P105-CodeExcel.ai/src/taskpane/html/taskpane.html"/>
     </DefaultSettings>
+    <IconUrl DefaultValue="https://harry-0402.github.io/P105-CodeExcel.ai/src/assets/codeexcel-logo-32.png"/>
+    <HighResolutionIconUrl DefaultValue="https://harry-0402.github.io/P105-CodeExcel.ai/src/assets/codeexcel-logo-128.png"/>
     <Permissions>ReadWriteDocument</Permissions>
 </OfficeApp>
