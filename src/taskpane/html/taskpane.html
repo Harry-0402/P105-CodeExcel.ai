@@ -216,62 +216,11 @@
     </div>
 
     <!-- Scripts -->
+    <script src="https://appsforoffice.microsoft.com/lib/1/hosted/office.js"></script>
     <script src="../js/storage.js"></script>
     <script src="../js/modelsManager.js"></script>
     <script src="../js/api.js"></script>
     <script src="../js/ui.js"></script>
-    <script src="../js/taskpane.js"></script>
-</body>
-</html>
-                
-                <div class="form-group">
-                    <label for="apiKeyInput">OpenRouter API Key</label>
-                    <input 
-                        type="password" 
-                        id="apiKeyInput" 
-                        placeholder="Enter your OpenRouter API key"
-                        class="form-control"
-                    />
-                    <small class="help-text">Your API key is stored securely in your browser's local storage.</small>
-                </div>
-
-                <div class="form-group">
-                    <label for="modelInput">AI Model</label>
-                    <input 
-                        type="text" 
-                        id="modelInput" 
-                        placeholder="google/gemini-2.0-flash-lite-preview-02-05:free"
-                        class="form-control"
-                    />
-                    <small class="help-text">Default: google/gemini-2.0-flash-lite-preview-02-05:free</small>
-                </div>
-
-                <div class="form-group">
-                    <label for="systemPromptInput">System Prompt</label>
-                    <textarea 
-                        id="systemPromptInput" 
-                        class="form-control"
-                        rows="4"
-                        placeholder="You are an Excel data analyst. Complete the following task or analyze this data concisely."
-                    ></textarea>
-                    <small class="help-text">Instructions for the AI model</small>
-                </div>
-
-                <button id="saveButton" class="btn btn-secondary">Save Settings</button>
-                <button id="clearButton" class="btn btn-danger">Clear API Key</button>
-
-                <div id="settingsStatus" class="settings-status"></div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Office JavaScript API -->
-    <script src="https://appsforoffice.microsoft.com/lib/1/hosted/office.js"></script>
-    
-    <!-- Application Scripts -->
-    <script src="../js/storage.js"></script>
-    <script src="../js/ui.js"></script>
-    <script src="../js/api.js"></script>
     <script src="../js/taskpane.js"></script>
 </body>
 </html>
