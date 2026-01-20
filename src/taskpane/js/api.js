@@ -174,5 +174,15 @@ const APIModule = {
         }
 
         return 'An unexpected error occurred';
+    },
+
+    /**
+     * High-level sendMessage used by taskpane
+     */
+    async sendMessage({ message, apiKey, model, temperature = 0.7, cellData, systemPrompt }) {
+        const prompt = systemPrompt || StorageModule?.getSystemPrompt?.() || 'You are a helpful assistant for Excel data processing.';
+        const combinedMessage = cellData ? `${message}\n\nSelected cells: ${cellData}` : message;
+        const result = await this.callOpenRouter(combinedMessage, apiKey, model, prompt, { temperature });
+        return { success: true, content: result.response, model: result.model, time: result.time };
     }
 };
