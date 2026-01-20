@@ -313,11 +313,13 @@ const TaskPane = {
                     
                     // Save to history
                     if (typeof StorageModule !== 'undefined') {
-                        StorageModule.addToHistory({
+                        const history = StorageModule.getHistory();
+                        history.push({
                             query: message,
                             response: response.content,
                             timestamp: new Date().toISOString()
                         });
+                        StorageModule.setHistory(history);
                     }
                 } else {
                     this.addMessage('ai', `Error: ${response.error}`);
