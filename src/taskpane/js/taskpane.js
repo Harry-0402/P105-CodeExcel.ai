@@ -83,41 +83,58 @@ const TaskPane = {
         const modelSelect = document.getElementById('modelSelect');
         if (modelSelect && settings.model) {
             modelSelect.value = settings.model;
-            ModelsManager.setModel(settings.model);
+            if (typeof ModelsManager !== 'undefined') {
+                ModelsManager.setModel(settings.model);
+            }
         }
 
         // Load temperature
         const tempSlider = document.getElementById('tempSlider');
+        const tempValue = document.getElementById('tempValue');
         if (tempSlider && settings.temperature) {
             tempSlider.value = settings.temperature;
-            document.getElementById('tempValue').textContent = settings.temperature;
+            if (tempValue) {
+                tempValue.textContent = settings.temperature;
+            }
         }
 
         // Load preferences
         this.autoSwitchEnabled = settings.autoSwitch !== false;
         this.cacheEnabled = settings.cacheResponses !== false;
 
-        document.getElementById('autoSwitchCheckbox').checked = this.autoSwitchEnabled;
-        document.getElementById('cacheResponsesCheckbox').checked = this.cacheEnabled;
+        const autoSwitchCheckbox = document.getElementById('autoSwitchCheckbox');
+        const cacheResponsesCheckbox = document.getElementById('cacheResponsesCheckbox');
+        if (autoSwitchCheckbox) autoSwitchCheckbox.checked = this.autoSwitchEnabled;
+        if (cacheResponsesCheckbox) cacheResponsesCheckbox.checked = this.cacheEnabled;
     },
 
     /**
      * Setup all event listeners
      */
     setupEventListeners() {
+        console.log('Setting up event listeners...');
+        
         // Tab navigation
-        document.querySelectorAll('.tab-button').forEach(btn => {
-            btn.addEventListener('click', (e) => this.switchTab(e.target.closest('.tab-button').dataset.tab));
+        const tabButtons = document.querySelectorAll('.tab-button');
+        console.log('Found tab buttons:', tabButtons.length);
+        tabButtons.forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const tab = e.target.closest('.tab-button').dataset.tab;
+                console.log('Tab clicked:', tab);
+                this.switchTab(tab);
+            });
         });
 
         // Message input
         const messageInput = document.getElementById('messageInput');
-        messageInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault();
-                this.sendMessage();
-            }
-        });
+        if (messageInput) {
+            messageInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    this.sendMessage();
+                }
+            });
+        }
 
         // Send button
         document.getElementById('sendButton').addEventListener('click', () => this.sendMessage());
