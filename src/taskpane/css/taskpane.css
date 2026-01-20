@@ -303,15 +303,15 @@ html, body {
 
 /* Suggestion Cards */
 .suggestions-area {
-    padding: 12px;
+    padding: 8px;
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 10px;
+    gap: 8px;
     background-color: var(--color-bg);
 }
 
 .suggestion-card {
-    padding: 12px;
+    padding: 10px;
     border: 1px solid var(--color-border);
     border-radius: var(--border-radius);
     background-color: var(--color-suggestion);
@@ -329,24 +329,24 @@ html, body {
 }
 
 .suggestion-card i {
-    font-size: 18px;
+    font-size: 16px;
     color: var(--color-primary);
-    margin-bottom: 6px;
+    margin-bottom: 4px;
     display: block;
 }
 
 .suggestion-card h4 {
-    font-size: 12px;
+    font-size: 11px;
     font-weight: 600;
     color: var(--color-text);
-    margin-bottom: 3px;
+    margin-bottom: 2px;
 }
 
 .suggestion-card p {
-    font-size: 11px;
+    font-size: 10px;
     color: var(--color-text-secondary);
     margin: 0;
-    line-height: 1.45;
+    line-height: 1.4;
 }
 
 /* Input Section */
