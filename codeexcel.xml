@@ -19,11 +19,6 @@
     <Hosts>
         <Host Name="Workbook"/>
     </Hosts>
-    <Requirements>
-        <Sets DefaultMinVersion="1.9">
-            <Set Name="ExcelApi" MinVersion="1.9"/>
-        </Sets>
-    </Requirements>
     <DefaultSettings>
         <SourceLocation DefaultValue="https://harry-0402.github.io/P105-CodeExcel.ai/src/taskpane/html/taskpane.html"/>
     </DefaultSettings>

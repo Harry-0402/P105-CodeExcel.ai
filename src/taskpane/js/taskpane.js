@@ -72,6 +72,14 @@ const TaskPane = {
             });
         }
 
+        // Global hotkey for formula generation (Ctrl+Alt+G)
+        document.addEventListener('keydown', (e) => {
+            if (e.ctrlKey && e.altKey && (e.key === 'g' || e.key === 'G')) {
+                e.preventDefault();
+                this.triggerFormulaAssist();
+            }
+        });
+
         // Send button
         const sendButton = document.getElementById('sendButton');
         if (sendButton) {
@@ -264,11 +272,6 @@ const TaskPane = {
                 context.workbook.onSelectionChanged.add(() => {
                     this.updateSelectedCell();
                 });
-
-                const sheet = context.workbook.worksheets.getActiveWorksheet();
-                sheet.onChanged.add((eventArgs) => {
-                    this.handleWorksheetChange(eventArgs);
-                });
                 await context.sync();
                 this.updateSelectedCell();
             });
@@ -302,40 +305,47 @@ const TaskPane = {
     },
 
     /**
-     * Handle worksheet edits to detect formulas and trigger inline assist
+     * Trigger formula assist via Ctrl+Alt+G hotkey
      */
-    async handleWorksheetChange(eventArgs) {
-        if (!this.inlineAssistEnabled || typeof Office === 'undefined') return;
-        if (this.isApplyingFormula) return;
+    async triggerFormulaAssist() {
+        console.log('🔮 Formula assist triggered via hotkey');
+        
+        if (!this.inlineAssistEnabled) {
+            console.log('Inline assist not enabled');
+            return;
+        }
+        if (typeof Office === 'undefined') {
+            console.log('Office not available');
+            return;
+        }
 
         try {
             await Excel.run(async (context) => {
-                const sheet = eventArgs?.worksheetId
-                    ? context.workbook.worksheets.getItem(eventArgs.worksheetId)
-                    : context.workbook.worksheets.getActiveWorksheet();
+                const sheet = context.workbook.worksheets.getActiveWorksheet();
+                const address = this.currentSelectedCell || 'A1';
+                console.log(`Getting cell ${address}...`);
 
-                const address = eventArgs?.address || this.currentSelectedCell || 'A1';
                 const range = sheet.getRange(address);
-                range.load(['address', 'formulas']);
+                range.load(['address', 'formulas', 'values']);
                 await context.sync();
 
                 const formula = range.formulas?.[0]?.[0];
-                if (!formula || !formula.toString().trim().startsWith('=')) {
+                const value = range.values?.[0]?.[0];
+                const cellContent = formula || value || '';
+                
+                console.log(`Cell content: ${cellContent}`);
+
+                // Allow suggestion even if formula is incomplete or empty
+                if (!cellContent || !cellContent.toString().trim().startsWith('=')) {
+                    console.log('Cell does not contain a formula starting with =');
                     return;
                 }
 
-                if (this.lastInlineTrigger && this.lastInlineTrigger.address === range.address) {
-                    const elapsed = Date.now() - this.lastInlineTrigger.time;
-                    if (elapsed < 1500) {
-                        return;
-                    }
-                }
-
-                this.lastInlineTrigger = { address: range.address, time: Date.now() };
-                await this.requestFormulaSuggestion({ address: range.address, userFormula: formula });
+                console.log(`Requesting suggestion for: ${cellContent}`);
+                await this.requestFormulaSuggestion({ address: range.address, userFormula: cellContent });
             });
         } catch (err) {
-            console.error('Worksheet change handler error:', err);
+            console.error('Formula assist trigger error:', err);
         }
     },
 
@@ -446,13 +456,27 @@ const TaskPane = {
      * Request a formula suggestion after detecting a user-entered '=' formula
      */
     async requestFormulaSuggestion({ address, userFormula }) {
-        if (!this.inlineAssistEnabled) return;
-        if (!address || !userFormula) return;
-        if (typeof APIModule === 'undefined') return;
+        console.log(`🔮 Requesting formula suggestion for ${address}`);
+        
+        if (!this.inlineAssistEnabled) {
+            console.log('Inline assist not enabled');
+            return;
+        }
+        if (!address || !userFormula) {
+            console.log('Missing address or userFormula');
+            return;
+        }
+        if (typeof APIModule === 'undefined') {
+            console.log('APIModule not available');
+            return;
+        }
 
         const apiKeyInput = document.getElementById('apiKey');
         const apiKey = apiKeyInput ? apiKeyInput.value : '';
-        if (!apiKey) return;
+        if (!apiKey) {
+            console.log('No API key configured');
+            return;
+        }
 
         const modelSelect = document.getElementById('modelSelect');
         const model = modelSelect ? modelSelect.value : 'auto';
@@ -460,7 +484,10 @@ const TaskPane = {
         const temperature = tempSlider ? parseFloat(tempSlider.value) : 0.7;
 
         try {
+            console.log(`Extracting Excel data...`);
             const excelData = await this.extractExcelData();
+            console.log(`Calling API with model: ${model}, temp: ${temperature}`);
+            
             const suggestion = await APIModule.getFormulaSuggestion({
                 apiKey,
                 model,
@@ -470,9 +497,14 @@ const TaskPane = {
                 excelData
             });
 
+            console.log(`API response:`, suggestion);
+            
             if (suggestion?.success && suggestion.formula) {
+                console.log(`✅ Got suggestion: ${suggestion.formula}`);
                 this.currentFormulaSuggestion = { address, formula: suggestion.formula };
                 this.showFormulaAssist(suggestion.formula);
+            } else {
+                console.log('Suggestion not successful or missing formula');
             }
         } catch (error) {
             console.error('Formula suggestion error:', error);

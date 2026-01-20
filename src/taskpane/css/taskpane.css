@@ -545,6 +545,17 @@ body.dark-mode .message-input:focus {
     color: var(--color-text-secondary);
 }
 
+.hotkey-hint {
+    display: inline-block;
+    padding: 4px 8px;
+    border-radius: var(--border-radius-sm);
+    background: var(--color-primary-light);
+    color: var(--color-primary);
+    font-weight: 600;
+    font-size: 11px;
+    border: 1px solid var(--color-primary);
+}
+
 .input-hint i {
     font-size: 13px;
 }
