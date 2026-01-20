@@ -11,7 +11,8 @@ const APIModule = {
     getHeaders: function(apiKey) {
         return {
             'Authorization': `Bearer ${apiKey}`,
-            'HTTP-Referer': 'https://codeexcel.ai',
+            // Use the deployed origin for OpenRouter attribution
+            'HTTP-Referer': 'https://harry-0402.github.io/P105-CodeExcel.ai',
             'X-Title': 'CodeExcel AI Assistant',
             'Content-Type': 'application/json'
         };
